@@ -1,6 +1,4 @@
-<<<<<<< HEAD
 # FABRIC-PATTERN-CLASSIFICATION-WITH-DEEP-LEARNING
-=======
 # Fabric Pattern Recognition
 
 This project is a web application that uses a PyTorch deep learning model to classify fabric patterns from an uploaded image.
