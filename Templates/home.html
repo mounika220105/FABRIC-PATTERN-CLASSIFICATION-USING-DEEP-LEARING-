@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  
+  <meta charset="UTF-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fabric Pattern Classifier</title>
+
+
+    <!-- Google Fonts -->
+   
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+
+    <!-- Font Awesome for icons -->
+   
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
+
+    <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      /* Option 1: Absolute path */
+      background: url('/bg.jpg') no-repeat center center fixed;
+
+
+
+      background-size: cover;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      /* Dark overlay */
+      z-index: -1;
+    }
+
+
+    h1 {
+      text-align: center;
+      color: #fff;
+      margin-bottom: 2rem;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+
+    .card {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(8px);
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      max-width: 450px;
+      width: 100%;
+      text-align: center;
+    }
+
+
+    .icon {
+      font-size: 60px;
+      color: #4CAF50;
+      margin-bottom: 1rem;
+    }
+
+
+    .file-input {
+      margin: 1.5rem 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+
+    .file-input input[type="file"] {
+      display: none;
+    }
+
+
+    .custom-file-upload {
+      display: inline-block;
+      padding: 0.8rem 1.5rem;
+      cursor: pointer;
+      background: #4CAF50;
+      color: #fff;
+      border-radius: 6px;
+      font-weight: 500;
+      transition: background 0.3s, transform 0.2s;
+    }
+
+
+    .custom-file-upload:hover {
+      background: #45a049;
+      transform: translateY(-2px);
+    }
+
+
+    button {
+      padding: 0.8rem 2rem;
+      background: #007BFF;
+      border: none;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      margin-top: 1rem;
+      transition: background 0.3s, transform 0.2s;
+    }
+
+
+    button:hover {
+      background: #0056b3;
+      transform: translateY(-2px);
+    }
+
+
+    #preview {
+      margin: 1rem 0;
+      max-width: 100%;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      display: none;
+    }
+
+
+    #result {
+      margin-top: 1rem;
+      font-weight: 600;
+      color: #333;
+    }
+  </style>
+</head>
+
+<body>
+    <div>
+        <h1>Fabric Pattern Classifier</h1>
+        <div class="card">
+            <i class="fas fa-tshirt icon"></i>
+            <form id="uploadForm" enctype="multipart/form-data">
+                <div class="file-input">
+                    <label for="imageInput" class="custom-file-upload">
+                        <i class="fas fa-upload"></i> Choose Image
+                      </label>
+                    <input type="file" id="imageInput" name="image" accept="image/*" required />
+                  </div>
+                <img id="preview" src="#" alt="Image Preview" />
+                <button type="submit"><i class="fas fa-magic"></i> Classify Pattern</button>
+                <div id="result"></div>
+              </form>
+          </div>
+      </div>
+
+
+   
+  <script>
+    const form = document.getElementById('uploadForm');
+    const resultDiv = document.getElementById('result');
+    const imageInput = document.getElementById('imageInput');
+    const preview = document.getElementById('preview');
+
+
+    // Preview image on selection
+    imageInput.onchange = () => {
+      const [file] = imageInput.files;
+      if (file) {
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = 'block';
+      }
+    };
+
+
+    // Handle form submission
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData();
+      const file = imageInput.files[0];
+
+      if (!file) {
+        resultDiv.textContent = "Please select an image first.";
+        return;
+      }
+
+      formData.append('image', file);
+      resultDiv.textContent = "Classifying...";
+
+      try {
+        const response = await fetch('/predict', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        // Handle JSON response instead of raw text
+        const data = await response.json();
+        resultDiv.textContent = `Predicted Class: ${data.prediction}`;
+
+      } catch (error) {
+        console.error('Error:', error);
+        resultDiv.textContent = "Error occurred while classifying.";
+      }
+    });
+  </script>
+</body>
+
+</html>
